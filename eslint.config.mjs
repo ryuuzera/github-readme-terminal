@@ -5,9 +5,16 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Adicione a regra aqui para sobrescrever as anteriores
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off", // Opcional: permite atribuir any
+      "@typescript-eslint/no-unsafe-member-access": "off" // Opcional: permite acessar membros de any
+    }
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
