@@ -1,0 +1,102 @@
+{
+  "tokyonight": {
+    "bg": "#1a1b26",
+    "header": "#24283b",
+    "text": "#c0caf5",
+    "stats": "#e0af68",
+    "command": "#9ece6a",
+    "accent": "#7aa2f7",
+    "subtext": "#565f89",
+    "prompt": "#bb9af7"
+  },
+  "dracula": {
+    "bg": "#282a36",
+    "header": "#44475a",
+    "text": "#f8f8f2",
+    "stats": "#ffb86c",
+    "command": "#50fa7b",
+    "accent": "#bd93f9",
+    "subtext": "#6272a4",
+    "prompt": "#ff79c6"
+  },
+  "monokai": {
+    "bg": "#272822",
+    "header": "#3e3d32",
+    "text": "#f8f8f2",
+    "stats": "#fd971f",
+    "command": "#a6e22e",
+    "accent": "#66d9ef",
+    "subtext": "#75715e",
+    "prompt": "#f92672"
+  },
+  "githubdark": {
+    "bg": "#0d1117",
+    "header": "#161b22",
+    "text": "#c9d1d9",
+    "stats": "#ff7b72",
+    "command": "#7ee787",
+    "accent": "#79c0ff",
+    "subtext": "#8b949e",
+    "prompt": "#d2a8ff"
+  },
+  "githublight": {
+    "bg": "#ffffff",
+    "header": "#f6f8fa",
+    "text": "#24292f",
+    "stats": "#cf222e",
+    "command": "#1a7f37",
+    "accent": "#0969da",
+    "subtext": "#57606a",
+    "prompt": "#8250df"
+  },
+  "onedark": {
+    "bg": "#282c34",
+    "header": "#353b45",
+    "text": "#abb2bf",
+    "stats": "#e5c07b",
+    "command": "#98c379",
+    "accent": "#61afef",
+    "subtext": "#5c6370",
+    "prompt": "#c678dd"
+  },
+  "onelight": {
+    "bg": "#fafafa",
+    "header": "#e4e4e4",
+    "text": "#383a42",
+    "stats": "#c18401",
+    "command": "#50a14f",
+    "accent": "#4078f2",
+    "subtext": "#a0a1a7",
+    "prompt": "#a626a4"
+  },
+  "solarizeddark": {
+    "bg": "#002b36",
+    "header": "#073642",
+    "text": "#839496",
+    "stats": "#b58900",
+    "command": "#859900",
+    "accent": "#268bd2",
+    "subtext": "#586e75",
+    "prompt": "#6c71c4"
+  },
+  "solarizedlight": {
+    "bg": "#fdf6e3",
+    "header": "#eee8d5",
+    "text": "#657b83",
+    "stats": "#b58900",
+    "command": "#859900",
+    "accent": "#268bd2",
+    "subtext": "#93a1a1",
+    "prompt": "#6c71c4"
+  },
+  "nightowl": {
+    "bg": "#011627",
+    "header": "#0b2942",
+    "text": "#d6deeb",
+    "stats": "#f78c6c",
+    "command": "#addb67",
+    "accent": "#82aaff",
+    "subtext": "#5f7e97",
+    "prompt": "#c792ea"
+  }
+}

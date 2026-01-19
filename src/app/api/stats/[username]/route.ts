@@ -1,10 +1,6 @@
+import { promises as fs } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
-
-const THEMES: Record<string, any> = {
-  tokyonight: { bg: "#1a1b26", header: "#24283b", text: "#c0caf5", stats: "#e0af68", command: "#9ece6a", accent: "#7aa2f7", subtext: "#565f89", prompt: "#bb9af7" },
-  dracula: { bg: "#282a36", header: "#44475a", text: "#f8f8f2", stats: "#ffb86c", command: "#50fa7b", accent: "#bd93f9", subtext: "#6272a4", prompt: "#ff79c6" },
-  monokai: { bg: "#272822", header: "#3e3d32", text: "#f8f8f2", stats: "#fd971f", command: "#a6e22e", accent: "#66d9ef", subtext: "#75715e", prompt: "#f92672" }
-};
+import path from 'path';
 
 const GITHUB_QUERY = `
   query($login: String!) {
@@ -27,7 +23,6 @@ const GITHUB_QUERY = `
         }
       }
       contributionsCollection {
-        # O Calendar traz o total exato do gráfico (público + privado)
         contributionCalendar {
           totalContributions
         }
@@ -39,10 +34,39 @@ const GITHUB_QUERY = `
   }
 `;
 
+type DeviconStyle = 
+  | 'original' 
+  | 'plain' 
+  | 'line' 
+  | 'original-wordmark' 
+  | 'plain-wordmark' 
+  | 'line-wordmark';
+
+export const getDeviconUrl = (name: string, style: DeviconStyle = 'original'): string => {
+  return `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}/${name}-${style}.svg`;
+};
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const { searchParams } = new URL(req.url);
-  const theme = THEMES[searchParams.get('theme') || 'tokyonight'] || THEMES.tokyonight;
+  const filePath = path.join(process.cwd(), 'public', 'themes.json');
+  const jsonData = await fs.readFile(filePath, 'utf8');
+
+  const themes = JSON.parse(jsonData);
+  const themeName = searchParams.get('theme') || 'tokyonight';
+  const theme = themes[themeName] || themes.tokyonight;
+
+  const showProfile = searchParams.get('profile') !== 'false';
+  const showStats = searchParams.get('stats') !== 'false';
+  const showStack = searchParams.get('stack') !== 'false';
+  const showRepos = searchParams.get('repos') !== 'false';
+
+  const showCustomStack = searchParams.get('customstack') === 'true';
+
+  const customStacksParam = searchParams.get('stacks');
+  const customStacks = customStacksParam 
+    ? [...new Set(customStacksParam.split(',').map(s => s.trim()).filter(s => s.length > 0))]
+    : [];
 
   try {
     const response = await fetch('https://api.github.com/graphql', {
@@ -53,15 +77,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
       },
       body: JSON.stringify({
         query: GITHUB_QUERY,
-        variables: { login: username }
+        variables: { login: username },
       }),
-      next: { revalidate: 3600 }
+      next: { revalidate: 86400 },
     });
 
     const result = await response.json();
     if (result.errors || !result.data?.user) return new NextResponse('User not found', { status: 404 });
 
-    const svg = generateSVG(result.data.user, username, theme);
+    const svg = generateSVG(result.data.user, username, theme, {
+      showProfile,
+      showStats,
+      showStack,
+      showRepos,
+      showCustomStack,
+      customStacks,
+    });
+
     return new NextResponse(svg, {
       headers: {
         'Content-Type': 'image/svg+xml',
@@ -72,10 +104,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     return new NextResponse('Internal Error', { status: 500 });
   }
 }
-function generateSVG(user: any, username: string, theme: any) {
+
+interface RenderOptions {
+  showProfile: boolean;
+  showStats: boolean;
+  showStack: boolean;
+  showRepos: boolean;
+  showCustomStack: boolean;
+  customStacks: string[];
+}
+
+function generateSVG(user: any, username: string, theme: any, options: RenderOptions) {
+  const { showProfile, showStats, showStack, showRepos, showCustomStack, customStacks } = options;
+  
   let totalStars = 0;
   const langMap: Record<string, { size: number; color: string }> = {};
-  
+
   user.repositories.nodes.forEach((repo: any) => {
     totalStars += repo.stargazerCount;
     repo.languages.edges.forEach((edge: any) => {
@@ -84,15 +128,31 @@ function generateSVG(user: any, username: string, theme: any) {
     });
   });
 
-  const sortedLangs = Object.entries(langMap).sort((a: any, b: any) => b[1].size - a[1].size).slice(0, 5);
+  const sortedLangs = Object.entries(langMap)
+    .sort((a: any, b: any) => b[1].size - a[1].size)
+    .slice(0, 5);
   const totalSize = sortedLangs.reduce((acc, [_, val]: any) => acc + val.size, 0);
-  
+
   const pinnedRepos = user.repositories.nodes.slice(0, 4);
   const totalContributions = user.contributionsCollection.contributionCalendar.totalContributions;
   const stats = user.contributionsCollection;
 
-  // Altura levemente maior para acomodar as descrições que quebram linha
-  const svgHeight = 630;
+  let currentY = 65; 
+  const blockSpacing = 20;
+  const profileHeight = showProfile ? 120 : 0;
+  const statsHeight = showStats || showStack ? 120 : 0;
+  const reposHeight = showRepos ? 200 : 0;
+  let customStackHeight = 0;
+  if (showCustomStack && customStacks.length > 0) {
+    const rows = Math.ceil(customStacks.length / 8);
+    customStackHeight = rows * 45 + 55; 
+  }
+  if (showProfile) currentY += profileHeight + blockSpacing;
+  if (showStats || showStack) currentY += statsHeight + blockSpacing;
+  if (showRepos) currentY += reposHeight + blockSpacing;
+  if (showCustomStack && customStacks.length > 0) currentY += customStackHeight + blockSpacing;
+
+  const svgHeight = currentY + 50; 
 
   const drawHeaderBlock = (x: number, y: number, text: string, bgColor: string) => `
     <g transform="translate(${x}, ${y})">
@@ -101,6 +161,20 @@ function generateSVG(user: any, username: string, theme: any) {
       <text x="10" y="14" font-family="monospace" font-weight="bold" font-size="11" fill="${theme.bg}">${text}</text>
     </g>
   `;
+
+  const renderDevicon = (stack: string, index: number) => {
+    const iconUrl = getDeviconUrl(stack.toLowerCase());
+    if (!iconUrl) return '';
+
+    const xPos = 10 + (index % 11) * 45;
+    const yPos = 45 + Math.floor(index / 11) * 45; 
+
+    return `
+    <g transform="translate(${xPos}, ${yPos})">
+      <image href="${iconUrl}" x="0" y="0" width="35" height="35" />
+    </g>
+  `;
+  };
 
   return `
     <svg width="600" height="${svgHeight}" viewBox="0 0 600 ${svgHeight}" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,7 +190,7 @@ function generateSVG(user: any, username: string, theme: any) {
           font-size: 10px; 
           line-height: 1.2;
           display: -webkit-box;
-          -webkit-line-clamp: 2; /* Limita a 2 linhas para não quebrar o layout */
+          -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
@@ -137,62 +211,119 @@ function generateSVG(user: any, username: string, theme: any) {
         </foreignObject>
 
         <g class="content-fade">
-          <g transform="translate(0, 50)">
-            ${drawHeaderBlock(0, 0, "USER PROFILE", theme.accent)}
-            <g transform="translate(10, 40)">
-              <text font-size="18" font-weight="bold" fill="${theme.text}">${user.name || username}</text>
-              <text y="22" font-size="11" fill="${theme.subtext}">${user.bio?.substring(0, 60) || 'GitHub Contributor'}</text>
-              <text y="42" font-size="11" fill="${theme.command}">
-                Followers: <tspan fill="${theme.text}">${user.followers.totalCount}</tspan> 
-                <tspan fill="${theme.subtext}"> | </tspan> 
-                Following: <tspan fill="${theme.text}">${user.following?.totalCount || 0}</tspan>
-              </text>
+          <!-- Perfil do Usuário -->
+          ${
+            showProfile
+              ? `
+            <g transform="translate(0, 50)">
+              ${drawHeaderBlock(0, 0, 'USER PROFILE', theme.accent)}
+              <g transform="translate(10, 40)">
+                <text font-size="18" font-weight="bold" fill="${theme.text}">${user.name || username}</text>
+                <text y="22" font-size="11" fill="${theme.subtext}">${user.bio?.substring(0, 60) || 'GitHub Contributor'}</text>
+                <text y="42" font-size="11" fill="${theme.command}">
+                  Followers: <tspan fill="${theme.text}">${user.followers.totalCount}</tspan> 
+                  <tspan fill="${theme.subtext}"> | </tspan> 
+                  Following: <tspan fill="${theme.text}">${user.following?.totalCount || 0}</tspan>
+                </text>
+              </g>
             </g>
-          </g>
+          `
+              : ''
+          }
 
-          <g transform="translate(0, 160)">
-            <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
-            <g transform="translate(0, 20)">
-              ${drawHeaderBlock(0, 0, "SYSTEM STATS", theme.prompt)}
-              <text x="10" y="45" font-size="12" fill="${theme.text}">Total Activity: <tspan font-weight="bold" fill="${theme.stats}">${totalContributions}</tspan></text>
-              <text x="10" y="65" font-size="12" fill="${theme.text}">Stars Earned:   <tspan font-weight="bold" fill="${theme.stats}">${totalStars}</tspan></text>
-              <text x="10" y="85" font-size="12" fill="${theme.text}">Commits (Pub):  <tspan font-weight="bold" fill="${theme.stats}">${stats.totalCommitContributions}</tspan></text>
+          <!-- Estatísticas e Stack -->
+          ${
+            showStats || showStack
+              ? `
+            <g transform="translate(0, ${showProfile ? 160 : 50})">
+              <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
+              <g transform="translate(0, 20)">
+                ${
+                  showStats
+                    ? `
+                  ${drawHeaderBlock(0, 0, 'SYSTEM STATS', theme.prompt)}
+                  <text x="10" y="45" font-size="12" fill="${theme.text}">Total Activity: <tspan font-weight="bold" fill="${theme.stats}">${totalContributions}</tspan></text>
+                  <text x="10" y="65" font-size="12" fill="${theme.text}">Stars Earned:   <tspan font-weight="bold" fill="${theme.stats}">${totalStars}</tspan></text>
+                  <text x="10" y="85" font-size="12" fill="${theme.text}">Commits (Pub):  <tspan font-weight="bold" fill="${theme.stats}">${stats.totalCommitContributions}</tspan></text>
+                `
+                    : ''
+                }
+
+                ${
+                  showStack
+                    ? `
+                  <g transform="translate(${showStats ? '280' : '0'}, 0)">
+                    ${drawHeaderBlock(0, 0, 'CORE STACK', theme.command)}
+                    ${sortedLangs
+                      .map(
+                        ([name, info]: any, i: number) => `
+                      <g transform="translate(10, ${35 + i * 18})">
+                        <text font-size="10" fill="${theme.text}">${name.padEnd(10, ' ')}</text>
+                        <rect x="75" y="-7" width="120" height="4" rx="2" fill="${theme.header}"/>
+                        <rect x="75" y="-7" width="${(info.size / totalSize) * 120}" height="4" rx="2" fill="${info.color}"/>
+                      </g>
+                    `,
+                      )
+                      .join('')}
+                  </g>
+                `
+                    : ''
+                }
+              </g>
             </g>
+          `
+              : ''
+          }
 
-            <g transform="translate(280, 20)">
-              ${drawHeaderBlock(0, 0, "CORE STACK", theme.command)}
-              ${sortedLangs.map(([name, info]: any, i: number) => `
-                <g transform="translate(10, ${35 + i * 18})">
-                  <text font-size="10" fill="${theme.text}">${name.padEnd(10, ' ')}</text>
-                  <rect x="75" y="-7" width="120" height="4" rx="2" fill="${theme.header}"/>
-                  <rect x="75" y="-7" width="${(info.size / totalSize) * 120}" height="4" rx="2" fill="${info.color}"/>
-                </g>
-              `).join('')}
+          <!-- Repositórios -->
+          ${
+            showRepos
+              ? `
+            <g transform="translate(0, ${(showProfile ? 160 : 50) + (showStats || showStack ? 120 : 0) + 30})">
+              <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
+              ${drawHeaderBlock(0, 20, 'TOP REPOSITORIES', theme.stats)}
+              <g transform="translate(10, 65)">
+                ${pinnedRepos
+                  .map((repo: any, i: number) => {
+                    const col = i % 2;
+                    const row = Math.floor(i / 2);
+                    return `
+                  <g transform="translate(${col * 280}, ${row * 75})">
+                    <text font-size="12" font-weight="bold" fill="${theme.accent}">${repo.name.length > 20 ? repo.name.substring(0, 17) + '...' : repo.name}</text>
+                    <text x="0" y="15" fill="${theme.stats}" font-size="10">★ ${repo.stargazerCount}</text>
+                    <foreignObject x="0" y="18" width="250" height="45">
+                      <div xmlns="http://www.w3.org/1999/xhtml" class="repo-desc">
+                        ${repo.description || 'No description available...'}
+                      </div>
+                    </foreignObject>
+                  </g>
+                `;
+                  })
+                  .join('')}
+              </g>
             </g>
-          </g>
+          `
+              : ''
+          }
 
-          <g transform="translate(0, 310)">
-            <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
-            ${drawHeaderBlock(0, 20, "TOP REPOSITORIES", theme.stats)}
-            <g transform="translate(10, 65)">
-              ${pinnedRepos.map((repo: any, i: number) => {
-                const col = i % 2;
-                const row = Math.floor(i / 2);
-                return `
-                <g transform="translate(${col * 280}, ${row * 75})">
-                  <text font-size="12" font-weight="bold" fill="${theme.accent}">${repo.name.length > 20 ? repo.name.substring(0, 17) + '...' : repo.name}</text>
-                  <text x="0" y="15" fill="${theme.stats}" font-size="10">★ ${repo.stargazerCount}</text>
-                  <foreignObject x="0" y="18" width="250" height="45">
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="repo-desc">
-                      ${repo.description || 'No description available...'}
-                    </div>
-                  </foreignObject>
-                </g>
-              `}).join('')}
+          <!-- Stack Personalizada -->
+          ${
+            showCustomStack && customStacks.length > 0
+              ? `
+            <g transform="translate(0, ${(showProfile ? 160 : 50) + (showStats || showStack ? 120 : 0) + (showRepos ? 200 : 0) + 30})">
+              <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
+              ${drawHeaderBlock(0, 20, 'TECH STACK', theme.accent)}
+              <!-- Container para os ícones com posicionamento relativo ao título -->
+              <g transform="translate(0, 20)">
+                ${customStacks.map((stack, index) => renderDevicon(stack, index)).join('')}
+              </g>
             </g>
-          </g>
+          `
+              : ''
+          }
 
-          <g transform="translate(0, 540)">
+          <!-- Cursor piscante -->
+          <g transform="translate(0, ${svgHeight - 85})">
             <text fill="${theme.command}" font-size="12">➜ <tspan fill="${theme.accent}">~</tspan></text>
             <rect width="8" height="15" x="25" y="-11" fill="${theme.command}">
               <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
