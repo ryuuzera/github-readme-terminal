@@ -8,7 +8,7 @@ A dynamic, terminal-style GitHub profile status generator that creates beautiful
 *Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões SVG incríveis e em tempo real para o seu README.*
 
 ---
-<img width="691" height="713" alt="image" src="https://github.com/user-attachments/assets/3364c092-2bce-4184-8b17-9490556bcde5" />
+<img width="691" height="713" alt="image" src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight" />
 
 ## 🇺🇸 English Documentation
 
