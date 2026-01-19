@@ -5,7 +5,7 @@ A dynamic, terminal-style GitHub profile status generator that creates beautiful
 
 ---
 
-<img src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs,mongodb,tailwind,docker,python" />
+<img src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs" />
 
 ---
 
