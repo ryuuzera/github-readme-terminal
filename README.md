@@ -6,8 +6,8 @@ A dynamic, terminal-style GitHub profile status generator that creates beautiful
 ---
 
 <div>
-<img width="430px" src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs" />
-<img width="430px" src="https://github-terminal-readme.nexflare.com.br/api/stats/torvalds?theme=githubdark&customstack=true&stacks=c,cplusplus" />
+<img width="400px" src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs" />
+<img width="400px" src="https://github-terminal-readme.nexflare.com.br/api/stats/torvalds?theme=githubdark&customstack=true&stacks=c,cplusplus" />
 </div>
 
 ---
