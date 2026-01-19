@@ -4,8 +4,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![GraphQL](https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)](https://graphql.org/)
 
-A dynamic, terminal-style GitHub profile status generator that creates beautiful, real-time SVG cards for your README.
-*Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões SVG incríveis e em tempo real para o seu README.*
+A dynamic, terminal-style GitHub profile status generator that creates beautiful, real-time cards for your README.
+*Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões incríveis e em tempo real para o seu README.*
 
 ---
 <img width="691" height="713" alt="image" src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight" />
