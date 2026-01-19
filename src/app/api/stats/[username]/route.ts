@@ -34,17 +34,25 @@ const GITHUB_QUERY = `
   }
 `;
 
-type DeviconStyle = 
-  | 'original' 
-  | 'plain' 
-  | 'line' 
-  | 'original-wordmark' 
-  | 'plain-wordmark' 
-  | 'line-wordmark';
+type DeviconStyle = 'original' | 'plain' | 'line' | 'original-wordmark' | 'plain-wordmark' | 'line-wordmark';
 
 export const getDeviconUrl = (name: string, style: DeviconStyle = 'original'): string => {
   return `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}/${name}-${style}.svg`;
 };
+
+async function getBase64Icon(name: string): Promise<string> {
+  try {
+    const url = `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}/${name}-original.svg`;
+    const response = await fetch(url);
+    if (!response.ok) return '';
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    return `data:image/svg+xml;base64,${buffer.toString('base64')}`;
+  } catch {
+    return '';
+  }
+}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
@@ -64,8 +72,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
   const showCustomStack = searchParams.get('customstack') === 'true';
 
   const customStacksParam = searchParams.get('stacks');
-  const customStacks = customStacksParam 
-    ? [...new Set(customStacksParam.split(',').map(s => s.trim()).filter(s => s.length > 0))]
+  const customStacks = customStacksParam
+    ? [
+        ...new Set(
+          customStacksParam
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0),
+        ),
+      ]
     : [];
 
   try {
@@ -85,7 +100,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     const result = await response.json();
     if (result.errors || !result.data?.user) return new NextResponse('User not found', { status: 404 });
 
-    const svg = generateSVG(result.data.user, username, theme, {
+    const svg = await generateSVG(result.data.user, username, theme, {
       showProfile,
       showStats,
       showStack,
@@ -114,9 +129,9 @@ interface RenderOptions {
   customStacks: string[];
 }
 
-function generateSVG(user: any, username: string, theme: any, options: RenderOptions) {
+async function generateSVG(user: any, username: string, theme: any, options: RenderOptions) {
   const { showProfile, showStats, showStack, showRepos, showCustomStack, customStacks } = options;
-  
+
   let totalStars = 0;
   const langMap: Record<string, { size: number; color: string }> = {};
 
@@ -137,7 +152,7 @@ function generateSVG(user: any, username: string, theme: any, options: RenderOpt
   const totalContributions = user.contributionsCollection.contributionCalendar.totalContributions;
   const stats = user.contributionsCollection;
 
-  let currentY = 65; 
+  let currentY = 65;
   const blockSpacing = 20;
   const profileHeight = showProfile ? 120 : 0;
   const statsHeight = showStats || showStack ? 120 : 0;
@@ -145,14 +160,14 @@ function generateSVG(user: any, username: string, theme: any, options: RenderOpt
   let customStackHeight = 0;
   if (showCustomStack && customStacks.length > 0) {
     const rows = Math.ceil(customStacks.length / 8);
-    customStackHeight = rows * 45 + 55; 
+    customStackHeight = rows * 45 + 55;
   }
   if (showProfile) currentY += profileHeight + blockSpacing;
   if (showStats || showStack) currentY += statsHeight + blockSpacing;
   if (showRepos) currentY += reposHeight + blockSpacing;
   if (showCustomStack && customStacks.length > 0) currentY += customStackHeight + blockSpacing;
 
-  const svgHeight = currentY + 50; 
+  const svgHeight = currentY + 50;
 
   const drawHeaderBlock = (x: number, y: number, text: string, bgColor: string) => `
     <g transform="translate(${x}, ${y})">
@@ -162,19 +177,22 @@ function generateSVG(user: any, username: string, theme: any, options: RenderOpt
     </g>
   `;
 
-  const renderDevicon = (stack: string, index: number) => {
-    const iconUrl = getDeviconUrl(stack.toLowerCase());
-    if (!iconUrl) return '';
+  const renderDevicon = async (stack: string, index: number) => {
+    const base64Data = await getBase64Icon(stack.toLowerCase());
+    if (!base64Data) return '';
 
     const xPos = 10 + (index % 11) * 45;
-    const yPos = 45 + Math.floor(index / 11) * 45; 
+    const yPos = 45 + Math.floor(index / 11) * 45;
 
     return `
-    <g transform="translate(${xPos}, ${yPos})">
-      <image href="${iconUrl}" x="0" y="0" width="35" height="35" />
-    </g>
-  `;
+      <g transform="translate(${xPos}, ${yPos})">
+        <image href="${base64Data}" x="0" y="0" width="35" height="35" />
+      </g>
+    `;
   };
+  const iconsPromises = showCustomStack ? customStacks.map((stack, index) => renderDevicon(stack, index)) : [];
+
+  const resolvedIcons = (await Promise.all(iconsPromises)).join('');
 
   return `
     <svg width="600" height="${svgHeight}" viewBox="0 0 600 ${svgHeight}" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -307,20 +325,19 @@ function generateSVG(user: any, username: string, theme: any, options: RenderOpt
           }
 
           <!-- Stack Personalizada -->
-          ${
-            showCustomStack && customStacks.length > 0
-              ? `
-            <g transform="translate(0, ${(showProfile ? 160 : 50) + (showStats || showStack ? 120 : 0) + (showRepos ? 200 : 0) + 30})">
-              <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
-              ${drawHeaderBlock(0, 20, 'TECH STACK', theme.accent)}
-              <!-- Container para os ícones com posicionamento relativo ao título -->
-              <g transform="translate(0, 20)">
-                ${customStacks.map((stack, index) => renderDevicon(stack, index)).join('')}
-              </g>
-            </g>
-          `
-              : ''
-          }
+        ${
+          showCustomStack && customStacks.length > 0
+            ? `
+        <g transform="translate(0, ${(showProfile ? 160 : 50) + (showStats || showStack ? 120 : 0) + (showRepos ? 200 : 0) + 30})">
+          <line x1="0" y1="0" x2="550" y2="0" stroke="${theme.header}" stroke-width="1" />
+          ${drawHeaderBlock(0, 20, 'TECH STACK', theme.accent)}
+          <g transform="translate(0, 20)">
+            ${resolvedIcons}
+          </g>
+        </g>
+      `
+            : ''
+        }
 
           <!-- Cursor piscante -->
           <g transform="translate(0, ${svgHeight - 85})">
