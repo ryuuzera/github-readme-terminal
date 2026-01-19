@@ -4,10 +4,12 @@ A dynamic, terminal-style GitHub profile status generator that creates beautiful
 *Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões incríveis e em tempo real para o seu README.*
 
 ---
+
 <div>
-<img width="450px" src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs" />
-<img width="450px" src="https://github-terminal-readme.nexflare.com.br/api/stats/torvalds?theme=githubdark&customstack=true&stacks=c,cplusplus" />
+<img width="430px" src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs" />
+<img width="430px" src="https://github-terminal-readme.nexflare.com.br/api/stats/torvalds?theme=githubdark&customstack=true&stacks=c,cplusplus" />
 </div>
+
 ---
 
 ## 🇺🇸 English Documentation
