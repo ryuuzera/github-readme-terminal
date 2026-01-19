@@ -1,96 +1,94 @@
 # 💻 GitHub Terminal Status Generator
 
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![GraphQL](https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)](https://graphql.org/)
+A dynamic, terminal-style GitHub profile status generator that creates beautiful, real-time cards for your README.
+*Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões incríveis e em tempo real para o seu README.*
 
-A dynamic, terminal-style GitHub profile status generator that creates beautiful, real-time SVG cards for your README.
-*Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões SVG incríveis e em tempo real para o seu README.*
+---
+
+<img src="https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight&customstack=true&stacks=typescript,react,nextjs,nodejs,mongodb,tailwind,docker,python" />
 
 ---
 
 ## 🇺🇸 English Documentation
 
-### 📝 Project Description
-This project is a serverless SVG generator that renders your GitHub open-source journey as a realistic terminal session. It fetches real-time data directly from the GitHub GraphQL API to display contribution graphs, repository stats, and your core tech stack.
-
 ### ✨ Key Features
-* **Terminal Aesthetic:** Designed to look like a modern IDE/Terminal session with typing animations.
-* **Visual Analytics:** Includes a custom SVG area chart representing your yearly contribution activity.
-* **Theme Support:** Built-in support for popular themes: `tokyonight`, `dracula`, and `monokai`.
-* **Live Data:** Fetches up-to-the-minute accuracy using GitHub GraphQL API.
 
-### 🚀 How to Use
-Add the following markdown to your GitHub profile README:
+* **Terminal Aesthetic:** Modern IDE/Terminal design with typing animations.
+* **Custom Tech Stack:** Display your favorite tools using [Devicons](https://devicon.dev/).
+* **Modular Sections:** Show or hide profile, stats, core stack, and repositories.
+* **10 Themes:** Choose from popular color schemes like Tokyo Night, Dracula, and more.
 
-```markdown
-![GitHub Terminal Status](https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight)
+### ⚙️ Query Parameters
 
-```
+| Parameter | Description | Default | Options |
+| --- | --- | --- | --- |
+| `theme` | Terminal color scheme | `tokyonight` | See list below |
+| `profile` | Show/hide user profile section | `true` | `true`, `false` |
+| `stats` | Show/hide activity stats | `true` | `true`, `false` |
+| `stack` | Show/hide core language bar | `true` | `true`, `false` |
+| `repos` | Show/hide top repositories | `true` | `true`, `false` |
+| `customstack` | Enable Devicon icons section | `false` | `true`, `false` |
+| `stacks` | List of tech icons (slugs) | - | `react,typescript,nodejs...` |
 
-**Query Parameters:**
-| Parameter | Description | Options |
-| :--- | :--- | :--- |
-| `theme` | Color scheme of the terminal | `tokyonight` (default), `dracula`, `monokai` |
+---
+
+### 🛠️ Devicon Integration
+
+To display your tools in the **TECH STACK** section, use the icon names available in the official [Devicon](https://devicon.dev/) library. You must use the exact "slug" of the icon in the `stacks` parameter.
+
+**Example:**
+`stacks=react,nodejs,typescript,docker`
 
 ---
 
 ## 🇧🇷 Documentação em Português
 
-### 📝 Descrição do Projeto
-
-Este projeto é um gerador de SVG serverless que renderiza sua jornada open-source no GitHub como uma sessão de terminal realista. Ele busca dados em tempo real diretamente da API GraphQL do GitHub para exibir gráficos de contribuição, estatísticas de repositórios e sua stack principal.
-
 ### ✨ Funcionalidades Principais
 
-* **Estética de Terminal:** Design baseado em sessões de terminal/IDE modernas com animações de digitação.
-* **Análise Visual:** Inclui um gráfico de área (wave-chart) representando sua atividade de contribuição anual.
-* **Suporte a Temas:** Temas integrados: `tokyonight`, `dracula` e `monokai`.
-* **Dados em Tempo Real:** Precisão garantida via API GraphQL do GitHub.
+* **Estética de Terminal:** Design baseado em sessões de terminal com animações de digitação.
+* **Stack Personalizada:** Exiba suas ferramentas favoritas usando ícones do [Devicons](https://devicon.dev/).
+* **Seções Modulares:** Ative ou desative perfil, estatísticas, linguagens e repositórios.
+* **10 Temas:** Escolha entre esquemas de cores como Tokyo Night, Dracula e outros.
 
-### 🚀 Como Usar
+### ⚙️ Parâmetros de Consulta
 
-Adicione o seguinte markdown ao seu README de perfil do GitHub:
-
-```markdown
-![GitHub Terminal Status](https://github-terminal-readme.nexflare.com.br/api/stats/ryuuzera?theme=tokyonight)
-
-```
-
-**Parâmetros de Consulta:**
-| Parâmetro | Descrição | Opções |
-| :--- | :--- | :--- |
-| `theme` | Esquema de cores do terminal | `tokyonight` (padrão), `dracula`, `monokai` |
+| Parâmetro | Descrição | Padrão | Opções |
+| --- | --- | --- | --- |
+| `theme` | Esquema de cores | `tokyonight` | Ver lista abaixo |
+| `profile` | Exibir/ocultar perfil do usuário | `true` | `true`, `false` |
+| `stats` | Exibir/ocultar estatísticas | `true` | `true`, `false` |
+| `stack` | Exibir/ocultar barra de linguagens | `true` | `true`, `false` |
+| `repos` | Exibir/ocultar repositórios | `true` | `true`, `false` |
+| `customstack` | Ativar seção de ícones Devicon | `false` | `true`, `false` |
+| `stacks` | Lista de ícones (separados por vírgula) | - | `react,nextjs,docker...` |
 
 ---
 
-## 🛠️ Installation & Setup / Instalação
+### 🛠️ Integração Devicon
 
-1. **Clone the repository / Clone o repositório:**
-```bash
-git clone [https://github.com/ryuuzera/github-readme-terminal.git](https://github.com/ryuuzera/github-readme-terminal.git)
+Para exibir suas ferramentas na seção **TECH STACK**, utilize os nomes dos ícones disponíveis na biblioteca oficial [Devicon](https://devicon.dev/). Você deve usar o "slug" exato do ícone no parâmetro `stacks`.
 
-```
+**Exemplo:**
+`stacks=react,nodejs,typescript,docker`
 
-2. **Install dependencies / Instale as dependências:**
-```bash
-npm install
 
-```
+## 🎨 Available Themes / Temas Disponíveis
 
-3. **Environment Variables / Variáveis de Ambiente:**
-Create a `.env.local` file and add your GitHub Personal Access Token:
-*Crie um arquivo `.env.local` e adicione seu Token de Acesso Pessoal do GitHub:*
-```env
-GITHUB_TOKEN=your_personal_access_token_here
+Você pode usar qualquer um dos temas abaixo no parâmetro `theme`:
 
-```
+| Theme Name | Preview |
+| --- | --- |
+| `tokyonight` | Dark blue, purple, and green (Default) |
+| `dracula` | Classic dark theme with pink and green accents |
+| `monokai` | Retro terminal style with yellow and pink |
+| `githubdark` | Official GitHub Dark mode colors |
+| `githublight` | Official GitHub Light mode colors |
+| `onedark` | Popular Atom-inspired dark theme |
+| `onelight` | Clean light theme based on One Light |
+| `solarizeddark` | Traditional Solarized Dark palette |
+| `solarizedlight` | Traditional Solarized Light palette |
+| `nightowl` | Deep blue theme by Sarah Drasner |
 
-4. **Run locally / Rode localmente:**
-```bash
-npm run dev
-
-```
 
 ---
 
@@ -99,4 +97,4 @@ npm run dev
 This project is licensed under the MIT License.
 *Este projeto está sob a licença MIT.*
 
-
+---
