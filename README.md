@@ -2,7 +2,9 @@
 
 A dynamic, terminal-style GitHub profile status generator that creates beautiful, real-time cards for your README.
 *Um gerador dinâmico de status para o perfil do GitHub em estilo terminal que cria cartões incríveis e em tempo real para o seu README.*
-
+```html
+<img src="https://github-terminal-readme.nexflare.com.br/api/stats/gituhb-username?theme=githubdark&customstack=true&stacks=c,cplusplus" />
+```
 ---
 
 <div>
